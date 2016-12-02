@@ -16,7 +16,7 @@ public class Sample {
 	@Test(groups = { "Smoke", "Regression", "Integration" })
 	public void test() throws Exception {
 		ReportLog.testCaseInfo("Launching webdriver");
-		WebDriver driver = WebDriverFactory.getDriver("firefox_windows");
+		WebDriver driver = WebDriverFactory.getDriver("chrome_windows");
 		driver.get("http://www.google.com");
 		ReportLog.info("Navigated to google home page", driver, true);
 		ReportLog.warning("Navigated to google home page", driver, true);

@@ -15,6 +15,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Reporter;
 
+import io.restassured.http.Method;
 import io.restassured.response.Response;
 
 public class WebDriverFactory {
@@ -45,7 +46,8 @@ public class WebDriverFactory {
 		}
 		String hubURL = getHubURL().toString();
 		String sessionID = ((RemoteWebDriver) driver).getSessionId().toString();
-		Response response = RestUtil.post(hubURL.split("/wd/hub")[0] + "/grid/api/testsession?session=" + sessionID);
+		String postUrl = hubURL.split("/wd/hub")[0] + "/grid/api/testsession?session=" + sessionID;
+		Response response = RestUtil.sendRequest(Method.POST, postUrl);
 		String nodeIp = JsonUtil.getKey("proxyId", response.asString());
 		String testMachine = "(Browser: " + browserName + ", Platform: " + platformName + ", Hub: " + hubURL + ", Node: " + nodeIp + ")";
 		return testMachine;
