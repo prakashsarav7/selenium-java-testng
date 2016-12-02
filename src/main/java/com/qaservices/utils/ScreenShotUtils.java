@@ -43,6 +43,6 @@ public class ScreenShotUtils {
 	public static String getScreenShotWithLink(WebDriver driver) {
 		String inputFile = Reporter.getCurrentTestResult().getName() + "_" + screenShotIndex.incrementAndGet() + ".png";
 		takeScreenShot(driver, screenShotFolderPath + inputFile);
-		return "&emsp;<a href=\"." + File.separator + "ScreenShot" + File.separator + inputFile + "\" target=\"_blank\" >[ScreenShot]</a>";
+		return "&emsp;<a href=\"." + File.separator + "ScreenShot" + File.separator + inputFile + "\" target=\"_blank\">[ScreenShot]</a>";
 	}
 }

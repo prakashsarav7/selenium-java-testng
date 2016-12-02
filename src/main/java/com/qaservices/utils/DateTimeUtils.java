@@ -12,13 +12,13 @@ public class DateTimeUtils {
 		String time = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
 		return time;
 	}
-	
-	public static String convertMillisecondsToDate(long milliseconds) {
+
+	public static String convertMillisecondsToTime(long milliseconds) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(milliseconds);
 		return new SimpleDateFormat("HH:mm:ss").format(calendar.getTime());
 	}
-	
+
 	public static String getCurrentTime(String format) {
 		return new SimpleDateFormat(format).format(Calendar.getInstance().getTime());
 	}
