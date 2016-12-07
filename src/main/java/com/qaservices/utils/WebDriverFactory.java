@@ -56,23 +56,24 @@ public class WebDriverFactory {
 	private static WebDriver getNativeDriver(String browser_platform) {
 		WebDriver driver = null;
 		String browser = browser_platform.split("_")[0].toLowerCase();
-
+		DesiredCapabilities capability = DesiredCapabilitiesUtils.getDesiredCapability(browser_platform);
+		
 		switch (browser) {
 		case "chrome":
 			System.setProperty("webdriver.chrome.driver", Constants.DRIVERS_FILEPATH + "chromedriver_v25.exe");
-			driver = new ChromeDriver();
+			driver = new ChromeDriver(capability);
 			break;
 		case "firefox":
 			System.setProperty("webdriver.gecko.driver", Constants.DRIVERS_FILEPATH + "geckodriver_0_11_1.exe");
-			driver = new FirefoxDriver();
+			driver = new FirefoxDriver(capability);
 			break;
 		case "ie":
 			System.setProperty("webdriver.ie.driver", Constants.DRIVERS_FILEPATH + "IEDriverServer_x64_2_53_1.exe");
-			driver = new InternetExplorerDriver();
+			driver = new InternetExplorerDriver(capability);
 			break;
 		case "phantomjs":
 			System.setProperty("phantomjs.binary.path", Constants.DRIVERS_FILEPATH + "phantomjs_v211.exe");
-			driver = new PhantomJSDriver();
+			driver = new PhantomJSDriver(capability);
 			break;
 		case "htmlunit":
 			driver = new HtmlUnitDriver(true);

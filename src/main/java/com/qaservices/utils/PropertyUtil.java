@@ -17,9 +17,9 @@ public class PropertyUtil {
 	private Properties properties;
 	private static PropertyUtil environmentPorperties = null;
 
-	public PropertyUtil(String filePath, boolean... readExisting) {
+	public PropertyUtil(String filePath, boolean readExisting) {
 		this.filePath = filePath;
-		if (readExisting.length == 0 || readExisting[0])
+		if (readExisting)
 			loadProperties();
 	}
 
