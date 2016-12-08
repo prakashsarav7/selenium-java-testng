@@ -265,7 +265,7 @@ public class DeviceBrowserEmulator {
 		if (!userAgentData.containsKey(deviceName)) {
 			throw new RuntimeException("UserAgent data not available for " + deviceName);
 		}
-		return userAgentData.get(deviceName);
+		return new HashMap<String, Object>(userAgentData.get(deviceName));
 	}
 
 }

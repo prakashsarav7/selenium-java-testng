@@ -14,11 +14,11 @@ public class DataProviderClass {
 	public static Iterator<Object[]> dataProviderMethod() {
 
 		List<Object[]> dataToBeReturned = new ArrayList<Object[]>();
-		List<String> browsers = Arrays.asList(configProperties.getProperty("Browsers").split("|"));
-		List<String> platforms = Arrays.asList(configProperties.getProperty("Platforms").split("|"));
+		List<String> browsers = Arrays.asList(configProperties.getProperty("Browsers").split("\\|"));
+		List<String> platforms = Arrays.asList(configProperties.getProperty("Platforms").split("\\|"));
 
 		if (configProperties.isTrue("DeviceBrowserEmulation")) {
-			Arrays.asList(configProperties.getProperty("Devices").split("|")).forEach(device -> {
+			Arrays.asList(configProperties.getProperty("Devices").split("\\|")).forEach(device -> {
 				dataToBeReturned.add(new Object[] { "chrome_" + platforms.get(0) + "_" + device });
 			});
 		} else {
