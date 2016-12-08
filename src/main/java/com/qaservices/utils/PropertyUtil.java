@@ -15,12 +15,13 @@ public class PropertyUtil {
 
 	private String filePath;
 	private Properties properties;
-	private static PropertyUtil environmentPorperties = null;
+	private static PropertyUtil environmentPorperties;
 
 	public PropertyUtil(String filePath, boolean readExisting) {
 		this.filePath = filePath;
-		if (readExisting)
+		if (readExisting) {
 			loadProperties();
+		}
 	}
 
 	private void loadProperties() {
@@ -41,8 +42,9 @@ public class PropertyUtil {
 
 	public String getProperty(String key) {
 		String value = properties.getProperty(key);
-		if (value == null)
+		if (value == null) {
 			throw new RuntimeException("No entry found for key - " + key);
+		}
 		return value;
 	}
 
@@ -81,6 +83,10 @@ public class PropertyUtil {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public boolean isTrue(String key) {
+		return hasProperty(key) && getProperty(key).equals("true");
 	}
 
 	public static PropertyUtil getEnvironmentProperties() {

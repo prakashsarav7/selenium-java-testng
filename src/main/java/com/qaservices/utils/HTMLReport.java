@@ -84,6 +84,7 @@ public class HTMLReport implements IReporter {
 			String jsContent = FileUtils.readFileToString(new File(jsFile), Charset.defaultCharset());
 			writer.print(jsContent);
 		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 

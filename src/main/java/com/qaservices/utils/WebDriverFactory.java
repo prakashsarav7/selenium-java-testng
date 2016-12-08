@@ -53,11 +53,11 @@ public class WebDriverFactory {
 		return testMachine;
 	}
 
-	private static WebDriver getNativeDriver(String browser_platform) {
+	private static WebDriver getNativeDriver(String browserWithPlatform) {
 		WebDriver driver = null;
-		String browser = browser_platform.split("_")[0].toLowerCase();
-		DesiredCapabilities capability = DesiredCapabilitiesUtils.getDesiredCapability(browser_platform);
-		
+		String browser = browserWithPlatform.split("_")[0].toLowerCase();
+		DesiredCapabilities capability = DesiredCapabilitiesUtils.getDesiredCapability(browserWithPlatform);
+
 		switch (browser) {
 		case "chrome":
 			System.setProperty("webdriver.chrome.driver", Constants.DRIVERS_FILEPATH + "chromedriver_v25.exe");
@@ -80,31 +80,34 @@ public class WebDriverFactory {
 			break;
 		}
 
-		if (driver == null)
+		if (driver == null) {
 			ReportLog.fail("Failed to launch " + browser + " browser");
-		else
+		} else {
 			ReportLog.debug("Launched " + browser + " browser");
+		}
 
-		ReportLog.addAttribute(browser_platform);
-		if (browser != "htmlunit")
+		ReportLog.addAttribute(browserWithPlatform);
+		if (!browser.equals("htmlunit")) {
 			driver.manage().window().maximize();
+		}
 		return driver;
 	}
 
-	private static WebDriver getRemoteWebDriver(String browser_platform) {
+	private static WebDriver getRemoteWebDriver(String browserWithPlatform) {
 		URL hubURL = getHubURL();
-		DesiredCapabilities capability = DesiredCapabilitiesUtils.getDesiredCapability(browser_platform);
+		DesiredCapabilities capability = DesiredCapabilitiesUtils.getDesiredCapability(browserWithPlatform);
 		WebDriver driver = new RemoteWebDriver(hubURL, capability);
 		driver.manage().window().maximize();
 		ReportLog.addAttribute(getTestRunMachineInfo(driver));
 		return driver;
 	}
 
-	public static WebDriver getDriver(String browser_platform) {
-		browser_platform = browser_platform.contains("_") ? browser_platform : browser_platform + "_" + Constants.OS_NAME.split(" ")[0];
-		if (configProperty.hasProperty("GridExecution") && configProperty.getProperty("GridExecution").equals("true"))
-			return getRemoteWebDriver(browser_platform);
-		return getNativeDriver(browser_platform);
+	public static WebDriver getDriver(String browserWithPlatform) {
+		browserWithPlatform = browserWithPlatform.contains("_") ? browserWithPlatform : browserWithPlatform + "_" + Constants.OS_NAME.split(" ")[0];
+		if (configProperty.isTrue("GridExecution")) {
+			return getRemoteWebDriver(browserWithPlatform);
+		}
+		return getNativeDriver(browserWithPlatform);
 	}
 
 }

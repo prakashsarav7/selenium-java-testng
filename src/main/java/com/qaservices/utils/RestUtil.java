@@ -1,6 +1,6 @@
 package com.qaservices.utils;
 
-import static io.restassured.RestAssured.*;
+import io.restassured.RestAssured;
 
 import java.io.File;
 import java.util.Map;
@@ -13,7 +13,7 @@ public class RestUtil {
 
 	private static void setBaseURI(String baseUri) {
 		if (baseUri != null && !baseUri.isEmpty()) {
-			baseURI = baseUri;
+			RestAssured.baseURI = baseUri;
 		} else {
 			throw new RuntimeException("Base URI is not set");
 		}
@@ -21,17 +21,17 @@ public class RestUtil {
 
 	private static RequestSpecification getRequestSpecification(String baseUrl, String username, String password, Map<String, String> headers, String contentType, String body) {
 		setBaseURI(baseUrl);
-		return given().auth().basic(username, password).headers(headers).contentType(contentType).body(body);
+		return RestAssured.given().auth().basic(username, password).headers(headers).contentType(contentType).body(body);
 	}
 
 	private static RequestSpecification getRequestSpecification(String baseUrl, Map<String, String> headers, Map<String, String> inputData) {
 		setBaseURI(baseUrl);
-		return given().headers(headers).formParams(inputData);
+		return RestAssured.given().headers(headers).formParams(inputData);
 	}
 
 	private static RequestSpecification getRequestSpecification(String baseUrl, String username, String password, Map<String, String> headers, String contentType, String filePath, String body) {
 		setBaseURI(baseUrl);
-		return given().auth().basic(username, password).headers(headers).contentType(contentType).multiPart("files", new File(filePath));
+		return RestAssured.given().auth().basic(username, password).headers(headers).contentType(contentType).multiPart("files", new File(filePath)).body(body);
 	}
 
 	private static Response request(Method method, RequestSpecification requestSpecification, String pathUrl) {
@@ -41,7 +41,7 @@ public class RestUtil {
 		case GET:
 			response = requestSpecification.get(pathUrl);
 			break;
-			
+
 		case POST:
 			response = requestSpecification.post(pathUrl);
 			break;
@@ -62,7 +62,7 @@ public class RestUtil {
 	}
 
 	public static Response sendRequest(Method method, String baseUrl) {
-		RequestSpecification requestSpecification = given();
+		RequestSpecification requestSpecification = RestAssured.given();
 		return request(method, requestSpecification, baseUrl);
 	}
 

@@ -18,7 +18,7 @@ import com.aventstack.extentreports.utils.StringUtil;
 
 public class ReportLog {
 
-	private static ExtentReports extentReports = null;
+	private static ExtentReports extentReports;
 	private static HashMap<Integer, ExtentTest> testMethods = new HashMap<Integer, ExtentTest>();
 	private static HashMap<String, ExtentTest> testClasses = new HashMap<String, ExtentTest>();
 
@@ -236,54 +236,61 @@ public class ReportLog {
 	}
 
 	public static void exception(Exception e) throws Exception {
-		if (e instanceof SkipException)
+		if (e instanceof SkipException) {
 			skip(e);
-		else
+		} else {
 			fatal(e);
+		}
 		throw e;
 	}
 
 	public static void exception(Exception e, WebDriver driver) throws Exception {
-		if (e instanceof SkipException)
+		if (e instanceof SkipException) {
 			skip(e, driver, true);
-		else
+		} else {
 			fatal(e, driver, true);
+		}
 		throw e;
 	}
 
-	public static void Assert(boolean condition, String passMessage, String failMessage) {
-		if (condition)
+	public static void assertTrue(boolean condition, String passMessage, String failMessage) {
+		if (condition) {
 			pass(passMessage);
-		else
+		} else {
 			fail(failMessage);
+		}
 	}
 
-	public static void Assert(boolean condition, String passMessage, String failMessage, WebDriver driver) {
-		if (condition)
+	public static void assertTrue(boolean condition, String passMessage, String failMessage, WebDriver driver) {
+		if (condition) {
 			pass(passMessage, driver, true);
-		else
+		} else {
 			fail(failMessage, driver, true);
+		}
 	}
 
-	public static void AssertSoft(boolean condition, String passMessage, String failMessage) {
-		if (condition)
+	public static void assertSoftTrue(boolean condition, String passMessage, String failMessage) {
+		if (condition) {
 			pass(passMessage);
-		else
+		} else {
 			softFail(failMessage);
+		}
 	}
 
-	public static void AssertSoft(boolean condition, String passMessage, String failMessage, WebDriver driver) {
-		if (condition)
+	public static void assertSoftTrue(boolean condition, String passMessage, String failMessage, WebDriver driver) {
+		if (condition) {
 			pass(passMessage, driver, true);
-		else
+		} else {
 			softFail(failMessage, driver, true);
+		}
 	}
 
 	public static void endTest() {
 		getExtentReporterInstance().flush();
 		String reporterOutput = Reporter.getOutput(Reporter.getCurrentTestResult()).toString();
-		if (reporterOutput.matches(".*(FAILSOFT|FAIL|UnhandledException).*"))
+		if (reporterOutput.matches(".*(FAILSOFT|FAIL|UnhandledException).*")) {
 			fail("Test Failed. Check the steps above in red color.");
+		}
 		getLogger().info("****             End             ****");
 	}
 

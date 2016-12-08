@@ -6,10 +6,10 @@ import java.util.List;
 
 public class Constants {
 
-	public static final List<String> supportedBrowsers = Arrays.asList("chrome", "firefox", "ie", "phantomjs", "htmlunit");
-	public static final List<String> supportedPlatforms = Arrays.asList("windows");
+	public static final List<String> SUPPORTED_BROWSERS = Arrays.asList("chrome", "firefox", "ie", "phantomjs", "htmlunit");
+	public static final List<String> SUPPORTED_PLATFORMS = Arrays.asList("windows");
 
-	public static final List<String> chromeArguments = Arrays.asList("--ignore-certificate-errors", "--disable-bundled-ppapi-flash", "--disable-extensions", "--disable-web-security", "--always-authorize-plugins", "--allow-running-insecure-content", "--test-type", "--enable-npapi");
+	public static final List<String> CHROME_ARGS = Arrays.asList("--ignore-certificate-errors", "--disable-bundled-ppapi-flash", "--disable-extensions", "--disable-web-security", "--always-authorize-plugins", "--allow-running-insecure-content", "--test-type", "--enable-npapi");
 
 	public static final String OS_NAME = System.getProperty("os.name");
 	public static final String USER_DIR = System.getProperty("user.dir");
