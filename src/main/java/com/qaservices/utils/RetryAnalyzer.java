@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
+import org.testng.log4testng.Logger;
 
 public class RetryAnalyzer implements IRetryAnalyzer {
 	private static PropertyUtil configProperty = PropertyUtil.getEnvironmentProperties();
-
+	private static final Logger LOG = Logger.getLogger(RetryAnalyzer.class);
+	
 	private int retriedCount = 0;
 	private int maxRetryCount = configProperty.hasProperty("MaxRetryCount") ? Integer.parseInt(configProperty.getProperty("MaxRetryCount")) : 0;
 
@@ -19,8 +21,8 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 		boolean isRetry = false;
 		String exception = result.getThrowable().getClass().getSimpleName();
 		if ((retriedCount < maxRetryCount) && ((includeExceptions.size() == 0) || (includeExceptions.contains(exception))) && (!excludeExceptions.contains(exception))) {
-			ReportLog.debug(result.getName() + " failed with " + result.getThrowable().getClass().getName());
-			ReportLog.debug("Retrying count for " + result.getName() + " <=> " + ++retriedCount);
+			LOG.debug(result.getName() + " failed with " + result.getThrowable().getClass().getName());
+			LOG.debug("Retrying count for " + result.getName() + " <=> " + ++retriedCount);
 			isRetry = true;
 		}
 		return isRetry;
