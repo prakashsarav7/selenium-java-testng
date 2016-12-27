@@ -42,6 +42,10 @@ public class Sample {
 		 * values.put("HubHost", "localhost"); values.put("HubPort", "4444");
 		 * propertyUtil.setProperties(values);
 		 */
+		ReportLog.info("message");
+		ReportLog.debug("debug");
+		ReportLog.warning("warning");
+		ReportLog.pass("pass");
 		if (i++ < 3)
 			ReportLog.fail("fail");
 		;

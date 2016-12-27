@@ -23,6 +23,7 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 		if ((retriedCount < maxRetryCount) && ((includeExceptions.size() == 0) || (includeExceptions.contains(exception))) && (!excludeExceptions.contains(exception))) {
 			LOG.debug(result.getName() + " failed with " + result.getThrowable().getClass().getName());
 			LOG.debug("Retrying count for " + result.getName() + " <=> " + ++retriedCount);
+			ReportLog.retryingTest(result);
 			isRetry = true;
 		}
 		return isRetry;

@@ -206,14 +206,14 @@ public class ReportLog {
 	public static void warning(String message) {
 		logToLogger(callerClass(), Level.WARN, message, null);
 		logToStandardReport(WARN_HTML_BEGIN + message + WARN_HTML_END);
-		logToExtentReport(Status.WARNING, message);
+		logToExtentReport(Status.INFO, WARN_HTML_BEGIN + message + WARN_HTML_END);
 	}
 
 	public static void warning(String message, WebDriver driver, boolean takeScreenShot) {
 		String logMessage = takeScreenShot ? message + ScreenShotUtils.getScreenShotWithLink(driver) : message;
 		logToLogger(callerClass(), Level.WARN, message, null);
 		logToStandardReport(WARN_HTML_BEGIN + logMessage + WARN_HTML_END);
-		logToExtentReport(Status.WARNING, logMessage);
+		logToExtentReport(Status.INFO, WARN_HTML_BEGIN + logMessage + WARN_HTML_END);
 	}
 
 	public static void pass(String message) {
@@ -341,6 +341,20 @@ public class ReportLog {
 		logToLogger(callerClass(), Level.INFO, "****             End             ****", null);
 	}
 
+	public static void retryingTest(ITestResult result) {
+		try {
+			ExtentTest extentTest = testMethods.get(result.hashCode());
+			extentTest.getModel().getLogContext().getAll().forEach(log -> {
+				if (log.getStatus() == Status.FAIL) {
+					log.setStatus(Status.SKIP);
+				}
+			});
+			extentTest.getModel().setStatus(Status.SKIP);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void flushExtentReport(List<ITestResult> allTestCaseResults, String outputDirectory) {
 		if (disableExtentReports) {
 			return;
