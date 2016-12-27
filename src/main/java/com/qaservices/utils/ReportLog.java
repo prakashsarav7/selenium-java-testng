@@ -8,6 +8,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
@@ -232,7 +233,7 @@ public class ReportLog {
 		logToLogger(callerClass(), Level.ERROR, message, null);
 		logToStandardReport("<!--FAIL-->" + FAIL_HTML_BEGIN + message + LOG_HTML_END);
 		logToExtentReport(Status.FAIL, message);
-		throw new AssertionError(message);
+		Assert.fail(message);
 	}
 
 	public static void fail(String message, WebDriver driver, boolean takeScreenShot) {
@@ -240,7 +241,7 @@ public class ReportLog {
 		logToLogger(callerClass(), Level.ERROR, message, null);
 		logToStandardReport("<!--FAIL-->" + FAIL_HTML_BEGIN + logMessage + LOG_HTML_END);
 		logToExtentReport(Status.FAIL, logMessage);
-		throw new AssertionError(message);
+		Assert.fail(message);
 	}
 
 	public static void softFail(String message) {
