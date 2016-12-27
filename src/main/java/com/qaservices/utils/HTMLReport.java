@@ -5,15 +5,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.IReporter;
 import org.testng.ISuite;
 import org.testng.ISuiteResult;
@@ -38,8 +37,15 @@ public class HTMLReport implements IReporter {
 	// Reusable buffer
 	private StringBuilder buffer = new StringBuilder();
 
+	private static boolean isReportCreated = false;
+
 	@Override
 	public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) {
+
+		if (isReportCreated) {
+			return;
+		}
+
 		try {
 			writer = createWriter(outputDirectory);
 		} catch (IOException e) {
@@ -57,7 +63,39 @@ public class HTMLReport implements IReporter {
 
 		writer.close();
 
-		ReportLog.flushExtentReport();
+		List<ITestResult> allTests = new ArrayList<ITestResult>();
+		for (SuiteResult suiteResult : suiteResults) {
+			for (TestResult testResult : suiteResult.getTestResults()) {
+				for (ClassResult classResult : testResult.getFailedTestResults()) {
+					for (MethodResult methodResult : classResult.getMethodResults()) {
+						allTests.addAll(methodResult.getResults());
+					}
+				}
+				for (ClassResult classResult : testResult.getFailedConfigurationResults()) {
+					for (MethodResult methodResult : classResult.getMethodResults()) {
+						allTests.addAll(methodResult.getResults());
+					}
+				}
+				for (ClassResult classResult : testResult.getSkippedConfigurationResults()) {
+					for (MethodResult methodResult : classResult.getMethodResults()) {
+						allTests.addAll(methodResult.getResults());
+					}
+				}
+				for (ClassResult classResult : testResult.getSkippedTestResults()) {
+					for (MethodResult methodResult : classResult.getMethodResults()) {
+						allTests.addAll(methodResult.getResults());
+					}
+				}
+				for (ClassResult classResult : testResult.getPassedTestResults()) {
+					for (MethodResult methodResult : classResult.getMethodResults()) {
+						allTests.addAll(methodResult.getResults());
+					}
+				}
+			}
+		}
+		ReportLog.flushExtentReport(allTests, outputDirectory);
+
+		isReportCreated = true;
 	}
 
 	protected PrintWriter createWriter(String outdir) throws IOException {
@@ -73,16 +111,33 @@ public class HTMLReport implements IReporter {
 	protected void writeHead() {
 		writer.print("<head>");
 		writer.print("<title>TestNG Report</title>");
-		writeJS();
+		writeJavaScript();
 		writeStylesheet();
 		writer.print("</head>");
 	}
 
-	protected void writeJS() {
+	protected void writeJavaScript() {
 		try {
-			String jsFile = System.getProperty("user.dir") + "\\src\\main\\resources\\jsscripts.txt";
-			String jsContent = FileUtils.readFileToString(new File(jsFile), Charset.defaultCharset());
-			writer.print(jsContent);
+			writer.println("<script type=\"text/javascript\" src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js\"></script>");
+			writer.println("<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>");
+			writer.println("<script type=\"text/javascript\">");
+			writer.println("google.charts.load('current', {'packages':['corechart']});");
+			writer.println("google.charts.setOnLoadCallback(drawChart);");
+			writer.println("function drawChart() {");
+			writer.println("$(document).ready(function(){");
+			writer.println("var passcount=parseInt($(\"table[id='suitesummary']\").find(\"tr:nth-last-of-type(1) .num:nth-child(2)\").text().trim().replace(\",\",\"\"));");
+			writer.println("var skipcount=parseInt($(\"table[id='suitesummary']\").find(\"tr:nth-last-of-type(1) .num:nth-child(3)\").text().trim().replace(\",\",\"\"));");
+			writer.println("var failcount=parseInt($(\"table[id='suitesummary']\").find(\"tr:nth-last-of-type(1) .num:nth-child(4)\").text().trim().replace(\",\",\"\"));");
+			writer.println("var data = google.visualization.arrayToDataTable([['Status', 'Count'],['Pass', passcount],['Fail', failcount],['Skip', skipcount]]);");
+			writer.println("var options = { title: 'Test Result Status', width: 400, height: 300, colors: ['green', 'red', 'dodgerblue'], fontSize: 15, fontName: 'Verdana', backgroundColor: { fill:'transparent' }, chartArea: {'width': '75%', 'height': '75%'} };");
+			writer.println("var chart = new google.visualization.PieChart(document.getElementById('chart_div'));");
+			writer.println("chart.draw(data, options); \n }); \n }");
+			writer.println("</script>");
+			writer.println("<script type=\"text/javascript\">");
+			writer.println("window.addEventListener('keydown', function(e) {");
+			writer.println("if(e.altKey && e.ctrlKey && e.keyCode == 69) {");
+			writer.println("$(\"div[class='test-event']\").fadeToggle(500); \n } \n }, true);");
+			writer.println("</script>");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
@@ -111,6 +166,7 @@ public class HTMLReport implements IReporter {
 
 	protected void writeBody() {
 		writer.print("<body>");
+		writeDocumentHeading();
 		writeSuiteSummary();
 		writeScenarioSummary();
 		writeScenarioDetails();
@@ -119,6 +175,14 @@ public class HTMLReport implements IReporter {
 
 	protected void writeDocumentEnd() {
 		writer.print("</html>");
+	}
+
+	protected void writeDocumentHeading() {
+		writer.print("<hr size=3 noshade><h2 align=center>");
+		writer.print(suiteResults.size() > 0 ? suiteResults.get(0).getSuiteName() : "Default Suite");
+		writer.print("</h2><hr size=3 noshade><br>");
+		writer.print("<div id='chart_div' style='float: right;margin-right: 120px;margin-bottom: 10px;'></div>");
+		writer.print("<h3>Result Summary:</h3>");
 	}
 
 	protected void writeSuiteSummary() {
@@ -131,21 +195,22 @@ public class HTMLReport implements IReporter {
 		long totalDuration = 0;
 
 		writer.print("<table id=\"suitesummary\">");
+		writer.print("<tr><th colspan=5>Suite Summary</th></tr>");
 		writer.print("<tr>");
 		writer.print("<th>Test</th>");
 		writer.print("<th># Passed</th>");
 		writer.print("<th># Skipped</th>");
 		writer.print("<th># Failed</th>");
 		writer.print("<th>Total Duration</th>");
-		writer.print("<th>Included Groups</th>");
-		writer.print("<th>Excluded Groups</th>");
+		// writer.print("<th>Included Groups</th>");
+		// writer.print("<th>Excluded Groups</th>");
 		writer.print("</tr>");
 
 		int testIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			writer.print("<tr><th colspan=\"7\">");
-			writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
-			writer.print("</th></tr>");
+			// writer.print("<tr><th colspan=\"7\">");
+			// writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
+			// writer.print("</th></tr>");
 
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				int passedTests = testResult.getPassedTestCount();
@@ -160,13 +225,13 @@ public class HTMLReport implements IReporter {
 				writer.print(">");
 
 				buffer.setLength(0);
-				writeTableData(buffer.append("<a href=\"#t").append(testIndex).append("\">").append(Utils.escapeHtml(testResult.getTestName())).append("</a>").toString());
+				writeTableData(buffer.append("<a style=\"text-decoration: none;\" href=\"#t").append(testIndex).append("\">").append(Utils.escapeHtml(testResult.getTestName())).append("</a>").toString());
 				writeTableData(integerFormat.format(passedTests), "num");
 				writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num attn" : "num"));
 				writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn" : "num"));
 				writeTableData(DateTimeUtils.convertMillisecondsToDuration(duration), "num");
-				writeTableData(testResult.getIncludedGroups());
-				writeTableData(testResult.getExcludedGroups());
+				// writeTableData(testResult.getIncludedGroups());
+				// writeTableData(testResult.getExcludedGroups());
 
 				writer.print("</tr>");
 
@@ -200,9 +265,11 @@ public class HTMLReport implements IReporter {
 	protected void writeScenarioSummary() {
 		writer.print("<table id=\"summary\">");
 		writer.print("<thead>");
+		writer.print("<tr><th colspan=5>Test Case Summary</th></tr>");
 		writer.print("<tr>");
 		writer.print("<th>Test Suites</th>");
 		writer.print("<th>Test Cases</th>");
+		writer.print("<th>Run Status</th>");
 		writer.print("<th>Start Time</th>");
 		writer.print("<th>Duration</th>");
 		writer.print("</tr>");
@@ -211,9 +278,9 @@ public class HTMLReport implements IReporter {
 		int testIndex = 0;
 		int scenarioIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			writer.print("<tbody><tr><th colspan=\"4\">");
-			writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
-			writer.print("</th></tr></tbody>");
+			// writer.print("<tbody><tr><th colspan=\"4\">");
+			// writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
+			// writer.print("</th></tr></tbody>");
 
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				writer.print("<tbody id=\"t");
@@ -244,9 +311,18 @@ public class HTMLReport implements IReporter {
 	private int writeScenarioSummary(String description, List<ClassResult> classResults, String cssClassPrefix, int startingScenarioIndex) {
 		int scenarioCount = 0;
 		if (!classResults.isEmpty()) {
-			writer.print("<tr><th colspan=\"4\">");
-			writer.print(description);
-			writer.print("</th></tr>");
+			// writer.print("<tr><th colspan=\"4\">");
+			// writer.print(description);
+			// writer.print("</th></tr>");
+
+			String runStatusHTML = "<td valign=center align=center bgcolor=%s><font color='white'>%s</font></td>";
+			if (cssClassPrefix.equals("failed")) {
+				runStatusHTML = String.format(runStatusHTML, "#F00000", "Fail");
+			} else if (cssClassPrefix.equals("skipped")) {
+				runStatusHTML = String.format(runStatusHTML, "#0080FF", "Skip");
+			} else {
+				runStatusHTML = String.format(runStatusHTML, "#009400", "Pass");
+			}
 
 			int scenarioIndex = startingScenarioIndex;
 			int classIndex = 0;
@@ -264,6 +340,7 @@ public class HTMLReport implements IReporter {
 
 					ITestResult firstResult = results.iterator().next();
 					String methodName = Utils.escapeHtml(firstResult.getMethod().getMethodName());
+					String methodDesc = firstResult.getMethod().getDescription();
 					long start = firstResult.getStartMillis();
 					long duration = firstResult.getEndMillis() - start;
 
@@ -276,12 +353,12 @@ public class HTMLReport implements IReporter {
 
 					// Write the timing information with the first scenario per
 					// method
-					buffer.append("<td><a href=\"#m").append(scenarioIndex).append("\">").append(methodName).append("</a></td>").append("<td rowspan=\"").append(resultsCount).append("\" align=\"center\">").append(DateTimeUtils.convertMillisecondsToTime(start)).append("</td>").append("<td rowspan=\"").append(resultsCount).append("\" align=\"center\">").append(DateTimeUtils.convertMillisecondsToDuration(duration)).append("</td></tr>");
+					buffer.append("<td><a style=\"text-decoration: none;\" href=\"#m").append(scenarioIndex).append("\">").append(methodName + ": " + methodDesc).append("</a></td>").append(runStatusHTML).append("<td rowspan=\"").append(resultsCount).append("\" align=\"center\">").append(DateTimeUtils.convertMillisecondsToTime(start)).append("</td>").append("<td rowspan=\"").append(resultsCount).append("\" align=\"center\">").append(DateTimeUtils.convertMillisecondsToDuration(duration)).append("</td></tr>");
 					scenarioIndex++;
 
 					// Write the remaining scenarios for the method
 					for (int i = 1; i < resultsCount; i++) {
-						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m").append(scenarioIndex).append("\">").append(methodName).append("</a></td></tr>");
+						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a style=\"text-decoration: none;\" href=\"#m").append(scenarioIndex).append("\">").append(methodName + ": " + methodDesc).append("</a></td>").append(runStatusHTML).append("</tr>");
 						scenarioIndex++;
 					}
 
@@ -428,24 +505,16 @@ public class HTMLReport implements IReporter {
 		}
 
 		writer.print("</table>");
-		writer.print("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
+		writer.print("<p class=\"totop\"><a style=\"text-decoration: none;\" href=\"#summary\">back to summary</a></p>");
 	}
 
 	protected void writeReporterMessages(List<String> reporterMessages) {
 		writer.print("<div class=\"messages\">");
 		Iterator<String> iterator = reporterMessages.iterator();
 		assert iterator.hasNext();
-		if (Reporter.getEscapeHtml()) {
-			writer.print(Utils.escapeHtml(iterator.next()));
-		} else {
-			writer.print(iterator.next());
-		}
+		writer.print(iterator.next());
 		while (iterator.hasNext()) {
-			if (Reporter.getEscapeHtml()) {
-				writer.print(Utils.escapeHtml(iterator.next()));
-			} else {
-				writer.print(iterator.next());
-			}
+			writer.print(iterator.next());
 		}
 		writer.print("</div>");
 	}

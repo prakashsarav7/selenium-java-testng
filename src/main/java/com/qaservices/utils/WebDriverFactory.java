@@ -86,7 +86,7 @@ public class WebDriverFactory {
 			ReportLog.debug("Launched " + browser + " browser");
 		}
 
-		ReportLog.addAttribute(browserWithPlatform);
+		ReportLog.setAttributes(browserWithPlatform);
 		if (!browser.equals("htmlunit")) {
 			driver.manage().window().maximize();
 		}
@@ -98,7 +98,7 @@ public class WebDriverFactory {
 		DesiredCapabilities capability = DesiredCapabilitiesUtils.getDesiredCapability(browserWithPlatform);
 		WebDriver driver = new RemoteWebDriver(hubURL, capability);
 		driver.manage().window().maximize();
-		ReportLog.addAttribute(getTestRunMachineInfo(driver));
+		ReportLog.setAttributes(getTestRunMachineInfo(driver));
 		return driver;
 	}
 

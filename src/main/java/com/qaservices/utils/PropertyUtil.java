@@ -37,7 +37,7 @@ public class PropertyUtil {
 	}
 
 	public boolean hasProperty(String key) {
-		return properties.getProperty(key) != null;
+		return properties.getProperty(key) != null && !properties.getProperty(key).isEmpty();
 	}
 
 	public String getProperty(String key) {

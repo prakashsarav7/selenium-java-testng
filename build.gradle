@@ -5,19 +5,31 @@ apply plugin: 'maven'
 
 repositories {
 	mavenCentral()
+	mavenLocal()
+	maven {
+		url "http://oss.sonatype.org/content/groups/public"
+	}
 }
 
 defaultTasks 'makePretty', 'compileJava', 'check', 'test'
 
 dependencies {
-	compile 'org.testng:testng:6.9.13.6'
+	compile 'org.testng:testng:6.9.10'
 	compile 'org.seleniumhq.selenium:selenium-java:3.0.1'
 	compile 'org.seleniumhq.selenium:selenium-htmlunit-driver:2.52.0'
-	compile 'com.relevantcodes:extentreports:2.41.2'
+	compile 'io.appium:java-client:4.1.2'
+	//compile 'com.relevantcodes:extentreports:2.41.2'
 	compile 'com.aventstack:extentreports:3.0.1'
 	compile 'org.apache.poi:poi:3.15'
 	compile 'io.rest-assured:rest-assured:3.0.1'
 	compile 'log4j:log4j:1.2.17'
+	compile ('com.sikulix:sikulixapi:1.1.1-SNAPSHOT') {
+        exclude module: '${sikulix.libs}'
+        exclude module: 'jadb'
+    }
+	compile ('com.sikulix:sikulixlibslux:1.1.1-SNAPSHOT')
+	compile ('com.sikulix:sikulixlibsmac:1.1.1-SNAPSHOT')
+	compile ('com.sikulix:sikulixlibswin:1.1.1-SNAPSHOT')
 }
 
 sourceSets {

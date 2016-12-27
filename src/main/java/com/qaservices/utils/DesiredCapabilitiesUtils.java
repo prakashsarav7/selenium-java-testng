@@ -28,7 +28,7 @@ public class DesiredCapabilitiesUtils {
 				List<String> browserDetails = new ArrayList<>(Arrays.asList(browserWithPlatform.split("_")));
 				browserDetails = browserDetails.subList(2, browserDetails.size());
 				String deviceName = String.join("_", browserDetails);
-				opt.setExperimentalOption("mobileEmulation", new DeviceBrowserEmulator().getDeviceEmulationData(deviceName));
+				opt.setExperimentalOption("mobileEmulation", DeviceBrowserEmulator.getDeviceEmulationData(deviceName));
 			}
 			capability = DesiredCapabilities.chrome();
 			capability.setCapability(CapabilityType.TAKES_SCREENSHOT, true);

@@ -2,6 +2,7 @@ package com.qaservices.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class DateTimeUtils {
 
@@ -17,6 +18,12 @@ public class DateTimeUtils {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(milliseconds);
 		return new SimpleDateFormat("HH:mm:ss").format(calendar.getTime());
+	}
+	
+	public static Date convertMillisecondsToDate(long milliseconds) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(milliseconds);
+		return calendar.getTime();
 	}
 
 	public static String getCurrentTime(String format) {
