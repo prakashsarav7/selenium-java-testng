@@ -1,5 +1,6 @@
 package com.qaservices.unittests;
 
+import com.qaservices.utils.StopWatch;
 import org.openqa.selenium.WebDriver;
 import org.testng.SkipException;
 import org.testng.annotations.Listeners;
@@ -74,6 +75,18 @@ public class Sample {
 		test.createNode("Test3").fail("fail");
 		test1.fail(new Exception("Intentional"));
 		report.flush();
+	}
+	
+	@Test
+	public void testStopWatch() throws InterruptedException {
+		StopWatch watch = new StopWatch();
+		watch.start();
+		Thread.sleep(5721);
+		System.out.println(watch.getTime());
+		System.out.println(watch.isRunning());
+		System.out.println(watch.getTimeInSeconds());
+		watch.stop();
+		System.out.println(watch.isRunning());
 	}
 
 }
