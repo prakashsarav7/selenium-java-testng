@@ -87,7 +87,7 @@ public class WebDriverFactory {
 		}
 
 		ReportLog.setAttributes(browserWithPlatform);
-		if (!browser.equals("htmlunit")) {
+		if (!"htmlunit".equals(browser)) {
 			driver.manage().window().maximize();
 		}
 		return driver;
@@ -103,11 +103,11 @@ public class WebDriverFactory {
 	}
 
 	public static WebDriver getDriver(String browserWithPlatform) {
-		browserWithPlatform = browserWithPlatform.contains("_") ? browserWithPlatform : browserWithPlatform + "_" + Constants.OS_NAME.split(" ")[0];
+		String browserAndPlatform = browserWithPlatform.contains("_") ? browserWithPlatform : browserWithPlatform + "_" + Constants.OS_NAME.split(" ")[0];
 		if (configProperty.isTrue("GridExecution")) {
-			return getRemoteWebDriver(browserWithPlatform);
+			return getRemoteWebDriver(browserAndPlatform);
 		}
-		return getNativeDriver(browserWithPlatform);
+		return getNativeDriver(browserAndPlatform);
 	}
 
 }

@@ -86,7 +86,7 @@ public class PropertyUtil {
 	}
 	
 	public boolean isTrue(String key) {
-		return hasProperty(key) && getProperty(key).equals("true");
+		return hasProperty(key) && "true".equals(getProperty(key));
 	}
 
 	public static PropertyUtil getEnvironmentProperties() {

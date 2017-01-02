@@ -37,7 +37,7 @@ public class HTMLReport implements IReporter {
 	// Reusable buffer
 	private StringBuilder buffer = new StringBuilder();
 
-	private static boolean isReportCreated = false;
+	private static boolean isReportCreated;
 
 	@Override
 	public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) {
@@ -187,7 +187,6 @@ public class HTMLReport implements IReporter {
 
 	protected void writeSuiteSummary() {
 		NumberFormat integerFormat = NumberFormat.getIntegerInstance();
-		// NumberFormat decimalFormat = NumberFormat.getNumberInstance();
 
 		int totalPassedTests = 0;
 		int totalSkippedTests = 0;
@@ -202,15 +201,10 @@ public class HTMLReport implements IReporter {
 		writer.print("<th># Skipped</th>");
 		writer.print("<th># Failed</th>");
 		writer.print("<th>Total Duration</th>");
-		// writer.print("<th>Included Groups</th>");
-		// writer.print("<th>Excluded Groups</th>");
 		writer.print("</tr>");
 
 		int testIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			// writer.print("<tr><th colspan=\"7\">");
-			// writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
-			// writer.print("</th></tr>");
 
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				int passedTests = testResult.getPassedTestCount();
@@ -227,11 +221,9 @@ public class HTMLReport implements IReporter {
 				buffer.setLength(0);
 				writeTableData(buffer.append("<a style=\"text-decoration: none;\" href=\"#t").append(testIndex).append("\">").append(Utils.escapeHtml(testResult.getTestName())).append("</a>").toString());
 				writeTableData(integerFormat.format(passedTests), "num");
-				writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num attn" : "num"));
-				writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn" : "num"));
+				writeTableData(integerFormat.format(skippedTests), skippedTests > 0 ? "num attn" : "num");
+				writeTableData(integerFormat.format(failedTests), failedTests > 0 ? "num attn" : "num");
 				writeTableData(DateTimeUtils.convertMillisecondsToDuration(duration), "num");
-				// writeTableData(testResult.getIncludedGroups());
-				// writeTableData(testResult.getExcludedGroups());
 
 				writer.print("</tr>");
 
@@ -249,8 +241,8 @@ public class HTMLReport implements IReporter {
 			writer.print("<tr>");
 			writer.print("<th>Total</th>");
 			writeTableHeader(integerFormat.format(totalPassedTests), "num");
-			writeTableHeader(integerFormat.format(totalSkippedTests), (totalSkippedTests > 0 ? "num attn" : "num"));
-			writeTableHeader(integerFormat.format(totalFailedTests), (totalFailedTests > 0 ? "num attn" : "num"));
+			writeTableHeader(integerFormat.format(totalSkippedTests), totalSkippedTests > 0 ? "num attn" : "num");
+			writeTableHeader(integerFormat.format(totalFailedTests), totalFailedTests > 0 ? "num attn" : "num");
 			writeTableHeader(DateTimeUtils.convertMillisecondsToDuration(totalDuration), "num");
 			writer.print("<th colspan=\"2\"></th>");
 			writer.print("</tr>");
@@ -278,22 +270,17 @@ public class HTMLReport implements IReporter {
 		int testIndex = 0;
 		int scenarioIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			// writer.print("<tbody><tr><th colspan=\"4\">");
-			// writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
-			// writer.print("</th></tr></tbody>");
 
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				writer.print("<tbody id=\"t");
 				writer.print(testIndex);
 				writer.print("\">");
 
-				String testName = Utils.escapeHtml(testResult.getTestName());
-
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; failed (configuration methods)", testResult.getFailedConfigurationResults(), "failed", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; failed", testResult.getFailedTestResults(), "failed", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; skipped (configuration methods)", testResult.getSkippedConfigurationResults(), "skipped", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; skipped", testResult.getSkippedTestResults(), "skipped", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; passed", testResult.getPassedTestResults(), "passed", scenarioIndex);
+				scenarioIndex += writeScenarioSummary(testResult.getFailedConfigurationResults(), "failed", scenarioIndex);
+				scenarioIndex += writeScenarioSummary(testResult.getFailedTestResults(), "failed", scenarioIndex);
+				scenarioIndex += writeScenarioSummary(testResult.getSkippedConfigurationResults(), "skipped", scenarioIndex);
+				scenarioIndex += writeScenarioSummary(testResult.getSkippedTestResults(), "skipped", scenarioIndex);
+				scenarioIndex += writeScenarioSummary(testResult.getPassedTestResults(), "passed", scenarioIndex);
 
 				writer.print("</tbody>");
 
@@ -308,17 +295,14 @@ public class HTMLReport implements IReporter {
 	 * Writes the scenario summary for the results of a given state for a single
 	 * test.
 	 */
-	private int writeScenarioSummary(String description, List<ClassResult> classResults, String cssClassPrefix, int startingScenarioIndex) {
+	private int writeScenarioSummary(List<ClassResult> classResults, String cssClassPrefix, int startingScenarioIndex) {
 		int scenarioCount = 0;
 		if (!classResults.isEmpty()) {
-			// writer.print("<tr><th colspan=\"4\">");
-			// writer.print(description);
-			// writer.print("</th></tr>");
 
 			String runStatusHTML = "<td valign=center align=center bgcolor=%s><font color='white'>%s</font></td>";
-			if (cssClassPrefix.equals("failed")) {
+			if ("failed".equals(cssClassPrefix)) {
 				runStatusHTML = String.format(runStatusHTML, "#F00000", "Fail");
-			} else if (cssClassPrefix.equals("skipped")) {
+			} else if ("skipped".equals(cssClassPrefix)) {
 				runStatusHTML = String.format(runStatusHTML, "#0080FF", "Skip");
 			} else {
 				runStatusHTML = String.format(runStatusHTML, "#009400", "Pass");
@@ -441,7 +425,7 @@ public class HTMLReport implements IReporter {
 
 		// Write test parameters (if any)
 		Object[] parameters = result.getParameters();
-		int parameterCount = (parameters == null ? 0 : parameters.length);
+		int parameterCount = parameters == null ? 0 : parameters.length;
 		if (parameterCount > 0) {
 			writer.print("<tr class=\"param\">");
 			for (int i = 1; i <= parameterCount; i++) {
@@ -490,7 +474,7 @@ public class HTMLReport implements IReporter {
 				writer.print("\"");
 			}
 			writer.print(">");
-			writer.print((result.getStatus() == ITestResult.SUCCESS ? "Expected Exception" : "Exception"));
+			writer.print(result.getStatus() == ITestResult.SUCCESS ? "Expected Exception" : "Exception");
 			writer.print("</th></tr>");
 
 			writer.print("<tr><td");

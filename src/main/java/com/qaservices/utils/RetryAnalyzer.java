@@ -10,7 +10,7 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 	private static PropertyUtil configProperty = PropertyUtil.getEnvironmentProperties();
 	private static final Logger LOG = Logger.getLogger(RetryAnalyzer.class);
 	
-	private int retriedCount = 0;
+	private int retriedCount;
 	private int maxRetryCount = configProperty.hasProperty("MaxRetryCount") ? Integer.parseInt(configProperty.getProperty("MaxRetryCount")) : 0;
 
 	private List<String> includeExceptions = configProperty.hasProperty("IncludeExceptions") ? Arrays.asList(configProperty.getProperty("IncludeExceptions").split("\\|")) : Arrays.asList();

@@ -15,11 +15,9 @@ public class DateTimeUtils {
 	}
 
 	public static String convertMillisecondsToTime(long milliseconds) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(milliseconds);
-		return new SimpleDateFormat("HH:mm:ss").format(calendar.getTime());
+		return new SimpleDateFormat("HH:mm:ss").format(convertMillisecondsToDate(milliseconds));
 	}
-	
+
 	public static Date convertMillisecondsToDate(long milliseconds) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(milliseconds);

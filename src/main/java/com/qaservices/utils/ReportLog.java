@@ -150,7 +150,7 @@ public class ReportLog {
 			}
 		} else {
 			if (result == null || !result.getMethod().isTest()) {
-
+				extentTest = null;
 			} else {
 				extentReportOutputFilePath = new File(result.getTestContext().getOutputDirectory()).getParent() + File.separator + "ExtentReport.html";
 				extentTest = getClassNode(className).createNode(methodName, description).assignCategory(result.getMethod().getGroups());

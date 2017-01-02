@@ -32,7 +32,7 @@ public class ImageCompareUtils {
 	 * @return double - variation factor that ranges between 0 and 1
 	 */
 	public static double findVariationFactor(BufferedImage image1, BufferedImage image2) {
-		assert (image1.getHeight() == image2.getHeight() && image1.getWidth() == image2.getWidth());
+		assert image1.getHeight() == image2.getHeight() && image1.getWidth() == image2.getWidth();
 		double variation = 0.0;
 		for (int x = 0; x < image1.getWidth(); x++) {
 			for (int y = 0; y < image1.getHeight(); y++) {
@@ -79,7 +79,7 @@ public class ImageCompareUtils {
 		int h1 = actualImage.getHeight();
 		int w2 = expectedImage.getWidth();
 		int h2 = expectedImage.getHeight();
-		assert (w2 <= w1 && h2 <= h1);
+		assert w2 <= w1 && h2 <= h1;
 		int bestX = 0;
 		int bestY = 0;
 		double lowestDiff = Double.POSITIVE_INFINITY;
@@ -113,7 +113,7 @@ public class ImageCompareUtils {
 		int h1 = actualImage.getHeight();
 		int w2 = expectedImage.getWidth();
 		int h2 = expectedImage.getHeight();
-		assert (w2 <= w1 && h2 <= h1);
+		assert w2 <= w1 && h2 <= h1;
 		int bestX = 0;
 		int bestY = 0;
 		double lowestDiff = Double.POSITIVE_INFINITY;
@@ -387,8 +387,9 @@ public class ImageCompareUtils {
 	public static BufferedImage getResourceAsBufferedImage(String resourceFileName) {
 		try {
 			InputStream inputStreamExpected = ImageCompareUtils.class.getResourceAsStream(resourceFileName);
-			if (inputStreamExpected == null)
+			if (inputStreamExpected == null) {
 				throw new RuntimeException("Unable to find resource file:" + resourceFileName);
+			}
 			return ImageIO.read(ImageIO.createImageInputStream(inputStreamExpected));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
